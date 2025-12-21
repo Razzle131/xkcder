@@ -2,6 +2,8 @@ package core
 
 import "context"
 
+//go:generate mockgen -source=ports.go -destination=mocks/mock.go
+
 type Normalizer interface {
 	Norm(context.Context, string) ([]string, error)
 }
@@ -20,4 +22,9 @@ type Updater interface {
 type Searcher interface {
 	Search(context.Context, string, int) ([]Comics, error)
 	SearchIndex(context.Context, string, int) ([]Comics, error)
+}
+
+type AAA interface {
+	Login(name string, password string) (string, error)
+	Verify(tokenString string) error
 }

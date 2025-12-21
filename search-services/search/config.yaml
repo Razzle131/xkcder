@@ -1,0 +1,7 @@
+log_level: DEBUG
+search_address: localhost:83
+words_address: localhost:81
+db_address: localhost:1234
+index_ttl: 3600s
+broker_address: localhost:4222
+update_event: xkcd.db.updated

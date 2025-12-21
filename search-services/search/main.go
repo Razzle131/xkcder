@@ -1,0 +1,115 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log/slog"
+	"net"
+	"os"
+	"os/signal"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	searchpb "yadro.com/course/proto/search"
+	"yadro.com/course/search/adapters/db"
+	searchgrpc "yadro.com/course/search/adapters/grpc"
+	"yadro.com/course/search/adapters/index"
+	"yadro.com/course/search/adapters/initiator"
+	"yadro.com/course/search/adapters/nats"
+	"yadro.com/course/search/adapters/words"
+	"yadro.com/course/search/config"
+	"yadro.com/course/search/core"
+)
+
+func main() {
+	// config
+	var configPath string
+	flag.StringVar(&configPath, "config", "config.yaml", "server configuration file")
+	flag.Parse()
+	cfg := config.MustLoad(configPath)
+
+	// logger
+	log := mustMakeLogger(cfg.LogLevel)
+
+	if err := run(cfg, log); err != nil {
+		log.Error("server failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run(cfg config.Config, log *slog.Logger) error {
+	log.Info("starting server")
+	log.Debug("debug messages are enabled")
+
+	// database adapter
+	storage, err := db.New(log, cfg.DBAddress)
+	if err != nil {
+		return fmt.Errorf("failed to connect to db: %v", err)
+	}
+	defer storage.CloseOrLog()
+
+	// words adapter
+	words, err := words.NewClient(cfg.WordsAddress, log)
+	if err != nil {
+		return fmt.Errorf("failed create Words client: %v", err)
+	}
+	defer words.CloseOrLog()
+
+	// nats adapter
+	nats, err := nats.NewClient(cfg.BrokerAddress, log)
+	if err != nil {
+		return fmt.Errorf("failed create nats client: %v", err)
+	}
+	defer nats.CloseOrLog()
+
+	index := index.New()
+
+	initiator := initiator.New(cfg.IndexTTL)
+
+	// service
+	searcher := core.NewService(log, storage, words, index, initiator, nats)
+	if err = searcher.SubscribeOnUpdateIndex(cfg.UpdateEvent); err != nil {
+		return fmt.Errorf("failed create search service: %v", err)
+	}
+	searcher.SubscribeInitiatorIndexUpdate()
+
+	// grpc server
+	listener, err := net.Listen("tcp", cfg.Address)
+	if err != nil {
+		return fmt.Errorf("failed to listen: %v", err)
+	}
+
+	s := grpc.NewServer()
+	searchpb.RegisterSearchServer(s, searchgrpc.NewServer(searcher))
+	reflection.Register(s)
+
+	// context for Ctrl-C
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	go func() {
+		<-ctx.Done()
+		log.Debug("shutting down server")
+		s.GracefulStop()
+	}()
+
+	if err := s.Serve(listener); err != nil {
+		return fmt.Errorf("failed to serve: %v", err)
+	}
+	return nil
+}
+
+func mustMakeLogger(logLevel string) *slog.Logger {
+	var level slog.Level
+	err := level.UnmarshalText([]byte(logLevel))
+	if err != nil {
+		slog.Error("failed parsing log level", "error", err)
+		panic(err)
+	}
+
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})
+
+	return slog.New(handler)
+}
