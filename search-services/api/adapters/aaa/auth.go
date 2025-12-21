@@ -1,11 +1,12 @@
 package aaa
 
 import (
-	"errors"
-	"fmt"
 	"log/slog"
-	"os"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+
+	"yadro.com/course/api/core"
 )
 
 const secretKey = "something secret here" // token sign key
@@ -18,29 +19,57 @@ type AAA struct {
 	log      *slog.Logger
 }
 
-func New(tokenTTL time.Duration, log *slog.Logger) (AAA, error) {
-	const adminUser = "ADMIN_USER"
-	const adminPass = "ADMIN_PASSWORD"
-	user, ok := os.LookupEnv(adminUser)
-	if !ok {
-		return AAA{}, fmt.Errorf("could not get admin user from enviroment")
-	}
-	password, ok := os.LookupEnv(adminPass)
-	if !ok {
-		return AAA{}, fmt.Errorf("could not get admin password from enviroment")
-	}
-
+func New(tokenTTL time.Duration, user, password string, log *slog.Logger) AAA {
 	return AAA{
 		users:    map[string]string{user: password},
 		tokenTTL: tokenTTL,
 		log:      log,
-	}, nil
+	}
+}
+
+type jwtClaims struct {
+	Subject string
+	jwt.StandardClaims
 }
 
 func (a AAA) Login(name, password string) (string, error) {
-	return "", errors.New("implement me")
+	userPassword, found := a.users[name]
+	if !found {
+		return "", core.ErrNotAuthorized
+	}
+
+	if userPassword != password {
+		return "", core.ErrNotAuthorized
+	}
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtClaims{
+		adminRole,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(a.tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}).SignedString([]byte(secretKey))
+	if err != nil {
+		a.log.Error("failed to sign token", "err", err)
+		return "", core.ErrNotAuthorized
+	}
+
+	return token, nil
 }
 
 func (a AAA) Verify(tokenString string) error {
-	return errors.New("implement me")
+	claims := jwtClaims{}
+	parsedToken, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		slog.Error("failed token validation", "err", err)
+		return core.ErrNotAuthorized
+	}
+	if !parsedToken.Valid {
+		return core.ErrNotAuthorized
+	}
+
+	return nil
 }

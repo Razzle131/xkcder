@@ -1,1 +1,5 @@
-;
+DROP VIEW IF EXISTS db_stats;
+
+DROP TABLE IF EXISTS key_words;
+
+DROP TABLE IF EXISTS comics;

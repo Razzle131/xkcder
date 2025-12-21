@@ -11,9 +11,12 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
 	updatepb "yadro.com/course/proto/update"
 	"yadro.com/course/update/adapters/db"
 	updategrpc "yadro.com/course/update/adapters/grpc"
+	"yadro.com/course/update/adapters/grpc/middleware"
+	"yadro.com/course/update/adapters/nats"
 	"yadro.com/course/update/adapters/words"
 	"yadro.com/course/update/adapters/xkcd"
 	"yadro.com/course/update/config"
@@ -21,7 +24,6 @@ import (
 )
 
 func main() {
-
 	// config
 	var configPath string
 	flag.StringVar(&configPath, "config", "config.yaml", "server configuration file")
@@ -46,6 +48,8 @@ func run(cfg config.Config, log *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to db: %v", err)
 	}
+	defer storage.CloseOrLog()
+
 	if err := storage.Migrate(); err != nil {
 		return fmt.Errorf("failed to migrate db: %v", err)
 	}
@@ -61,6 +65,13 @@ func run(cfg config.Config, log *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("failed create Words client: %v", err)
 	}
+	defer words.CloseOrLog()
+
+	nats, err := nats.NewClient(cfg.BrokerAddress, log)
+	if err != nil {
+		return fmt.Errorf("failed create nats client: %v", err)
+	}
+	defer nats.CloseOrLog()
 
 	// service
 	updater, err := core.NewService(log, storage, xkcd, words, cfg.XKCD.Concurrency)
@@ -74,7 +85,7 @@ func run(cfg config.Config, log *slog.Logger) error {
 		return fmt.Errorf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(middleware.PublishUpdate(nats, cfg.UpdateEvent, log, "/update.Update/Update", "/update.Update/Drop")))
 	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater))
 	reflection.Register(s)
 
@@ -96,16 +107,13 @@ func run(cfg config.Config, log *slog.Logger) error {
 
 func mustMakeLogger(logLevel string) *slog.Logger {
 	var level slog.Level
-	switch logLevel {
-	case "DEBUG":
-		level = slog.LevelDebug
-	case "INFO":
-		level = slog.LevelInfo
-	case "ERROR":
-		level = slog.LevelError
-	default:
-		panic("unknown log level: " + logLevel)
+	err := level.UnmarshalText([]byte(logLevel))
+	if err != nil {
+		slog.Error("failed parsing log level", "error", err)
+		panic(err)
 	}
-	handler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})
+
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})
+
 	return slog.New(handler)
 }
