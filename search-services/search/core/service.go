@@ -5,8 +5,12 @@ import (
 	"errors"
 	"log/slog"
 	"maps"
+	"math/rand"
 	"slices"
 )
+
+// приколочено из-за лени(
+const xkcdLastId = 3183
 
 type Service struct {
 	log       *slog.Logger
@@ -129,6 +133,22 @@ func (s *Service) SearchIndex(ctx context.Context, limit int, phrase string) ([]
 	}
 	if err != nil {
 		return nil, errors.New("failed to get comicses")
+	}
+
+	return s.rangeComicses(ctx, ids, limit)
+}
+
+func (s *Service) SearchRandom(ctx context.Context, limit int) ([]Comics, error) {
+	if limit <= 0 {
+		return nil, errors.New("bad limit argument")
+	}
+
+	ids := make([]int, 0, limit)
+	for len(ids) < limit {
+		chosen := rand.Intn(xkcdLastId) + 1
+		if chosen != 404 {
+			ids = append(ids, chosen)
+		}
 	}
 
 	return s.rangeComicses(ctx, ids, limit)

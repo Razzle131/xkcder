@@ -61,3 +61,23 @@ func (s *Server) SearchIndex(ctx context.Context, in *searchpb.SearchRequest) (*
 
 	return &res, nil
 }
+
+func (s *Server) SearchRandom(ctx context.Context, in *searchpb.SearchRandomRequest) (*searchpb.SearchReply, error) {
+	resp, err := s.service.SearchRandom(ctx, int(in.Limit))
+	if err != nil {
+		return nil, err
+	}
+
+	res := searchpb.SearchReply{
+		Comics: make([]*searchpb.Comics, 0, len(resp)),
+	}
+
+	for _, c := range resp {
+		res.Comics = append(res.Comics, &searchpb.Comics{
+			Id:  int64(c.ID),
+			Url: c.URL,
+		})
+	}
+
+	return &res, nil
+}

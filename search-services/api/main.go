@@ -86,8 +86,10 @@ func run(cfg config.Config, log *slog.Logger) error {
 
 	mux.Handle("GET /api/search", middleware.Concurrency(rest.NewSearchHandler(log, searchClient), cfg.SearchConcurrency))
 	mux.Handle("GET /api/isearch", middleware.Rate(rest.NewIndexSearchHandler(log, searchClient), cfg.SearchRate))
+	mux.Handle("GET /api/search/random", middleware.Concurrency(rest.NewRandomComicsHandler(log, searchClient), cfg.SearchConcurrency))
 
 	mux.Handle("POST /api/login", rest.NewLoginHandler(log, aaa))
+	mux.Handle("POST /api/verify", middleware.Auth(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) }, aaa))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

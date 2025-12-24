@@ -230,6 +230,21 @@ func (mr *MockSearcherMockRecorder) SearchIndex(ctx, limit, phrase any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchIndex", reflect.TypeOf((*MockSearcher)(nil).SearchIndex), ctx, limit, phrase)
 }
 
+// SearchRandom mocks base method.
+func (m *MockSearcher) SearchRandom(ctx context.Context, limit int) ([]core.Comics, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchRandom", ctx, limit)
+	ret0, _ := ret[0].([]core.Comics)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchRandom indicates an expected call of SearchRandom.
+func (mr *MockSearcherMockRecorder) SearchRandom(ctx, limit any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRandom", reflect.TypeOf((*MockSearcher)(nil).SearchRandom), ctx, limit)
+}
+
 // SubscribeInitiatorIndexUpdate mocks base method.
 func (m *MockSearcher) SubscribeInitiatorIndexUpdate() {
 	m.ctrl.T.Helper()

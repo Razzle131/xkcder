@@ -227,3 +227,32 @@ func NewLoginHandler(log *slog.Logger, aaa core.AAA) http.HandlerFunc {
 		}
 	}
 }
+
+func NewRandomComicsHandler(log *slog.Logger, searcher core.Searcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		limit, _, err := parseQuerySearchParams(r.URL.Query().Get("limit"), "placeholder")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		res, err := searcher.SearchRandom(r.Context(), limit)
+		if err != nil {
+			log.Error(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		res2 := make([]Comics, 0, len(res))
+		for _, c := range res {
+			res2 = append(res2, Comics{
+				Id:  c.ID,
+				Url: c.URL,
+			})
+		}
+
+		if err := json.NewEncoder(w).Encode(SearchResponse{Comics: res2, Total: len(res2)}); err != nil {
+			log.Error("cannot encode reply", "error", err)
+		}
+	}
+}
