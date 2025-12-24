@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js" integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #121212;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e0e0e0;
+        }
+
+        .auth-container {
+            background-color: #1e1e1e;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #9aa0a6;
+            margin-bottom: 32px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 14px 12px;
+            background-color: transparent;
+            border: 1px solid #5f6368;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color: #8ab4f8;
+        }
+
+        .field input::placeholder {
+            color: #9aa0a6;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #8ab4f8;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #121212;
+            transition: background-color 0.2s ease;
+        }
+
+        .login-button:hover {
+            background-color: #a1c2fa;
+        }
+        .panel {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .action-btn {
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .action-btn.primary {
+            background-color: #8ab4f8;
+            color: #121212;
+        }
+
+        .action-btn.primary:hover {
+            background-color: #a1c2fa;
+        }
+
+        .action-btn.danger {
+            background-color: #ea4335;
+            color: #ffffff;
+        }
+
+        .action-btn.danger:hover {
+            background-color: #f28b82;
+        }
+
+        .action-btn.secondary {
+            background-color: #303134;
+            color: #e8eaed;
+            border: 1px solid #5f6368;
+        }
+
+        .action-btn.secondary:hover {
+            background-color: #3c4043;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-output {
+            flex: 1;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #5f6368;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #9aa0a6;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+  {{if .}}
+  <div class="auth-container">
+      <div class="auth-title">Вход</div>
+      <div class="auth-subtitle"></div>
+
+      <form action="">
+          <div class="field">
+              <input id="login" type="text" placeholder="Логин" required>
+          </div>
+
+          <div class="field">
+              <input id="password" type="password" placeholder="Пароль" required>
+          </div>
+
+          <button id="login-button" class="login-button" type="submit">Войти</button>
+          <script>
+            login_form = document.getElementById("login")
+            password_form = document.getElementById("password")
+
+            button = document.getElementById("login-button")
+            button.onclick = function() {
+              const body = {
+                name: login_form.value,
+                password: password_form.value
+              };
+
+              $.post("/login", JSON.stringify(body), (data, status) => {
+                location.reload()
+              });
+            }
+          </script>
+      </form>
+  </div>
+  {{else}}
+  <div class="panel">
+      <button id="update" class="action-btn primary">Обновить базу данных</button>
+      <button id="drop" class="action-btn danger">Сбросить базу данных</button>
+
+      <div class="status-row">
+          <button id="status" class="action-btn secondary">Проверить статус</button>
+          <div class="status-output" id="statusOutput">
+              Ожидание запроса...
+          </div>
+      </div>
+      <script>
+        button = document.getElementById("update")
+        button.onclick = function() {
+          $.post("/update", (data, status) => {
+            console.log(data, status)
+          });
+        }
+      </script>
+      <script>
+        button = document.getElementById("drop")
+        button.onclick = function() {
+          $.post("/drop", (data, status) => {
+            console.log(data, status)
+          });
+        }
+      </script>
+      <script>
+        button = document.getElementById("status")
+        field = document.getElementById("statusOutput")
+        button.onclick = function() {
+          $.post("/stats", (data, status) => {
+            console.log(data, status)
+            parsed = JSON.parse(data)
+            field.innerHTML = parsed.comics_fetched+"/"+parsed.comics_total
+          });
+        }
+      </script>
+  </div>
+  {{end}}
+</body>
+</html>

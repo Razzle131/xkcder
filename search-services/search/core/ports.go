@@ -24,6 +24,7 @@ type Words interface {
 type Searcher interface {
 	Search(ctx context.Context, limit int, phrase string) ([]Comics, error)
 	SearchIndex(ctx context.Context, limit int, phrase string) ([]Comics, error)
+	SearchRandom(ctx context.Context, limit int) ([]Comics, error)
 	SubscribeOnUpdateIndex(updateEventName string) error
 	SubscribeInitiatorIndexUpdate()
 	UpdateIndex()

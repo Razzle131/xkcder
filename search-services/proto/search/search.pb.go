@@ -74,6 +74,50 @@ func (x *SearchRequest) GetPhrase() string {
 	return ""
 }
 
+type SearchRandomRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchRandomRequest) Reset() {
+	*x = SearchRandomRequest{}
+	mi := &file_proto_search_search_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchRandomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchRandomRequest) ProtoMessage() {}
+
+func (x *SearchRandomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_search_search_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchRandomRequest.ProtoReflect.Descriptor instead.
+func (*SearchRandomRequest) Descriptor() ([]byte, []int) {
+	return file_proto_search_search_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SearchRandomRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
 type Comics struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -84,7 +128,7 @@ type Comics struct {
 
 func (x *Comics) Reset() {
 	*x = Comics{}
-	mi := &file_proto_search_search_proto_msgTypes[1]
+	mi := &file_proto_search_search_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +140,7 @@ func (x *Comics) String() string {
 func (*Comics) ProtoMessage() {}
 
 func (x *Comics) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_search_search_proto_msgTypes[1]
+	mi := &file_proto_search_search_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -109,7 +153,7 @@ func (x *Comics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Comics.ProtoReflect.Descriptor instead.
 func (*Comics) Descriptor() ([]byte, []int) {
-	return file_proto_search_search_proto_rawDescGZIP(), []int{1}
+	return file_proto_search_search_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Comics) GetId() int64 {
@@ -135,7 +179,7 @@ type SearchReply struct {
 
 func (x *SearchReply) Reset() {
 	*x = SearchReply{}
-	mi := &file_proto_search_search_proto_msgTypes[2]
+	mi := &file_proto_search_search_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +191,7 @@ func (x *SearchReply) String() string {
 func (*SearchReply) ProtoMessage() {}
 
 func (x *SearchReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_search_search_proto_msgTypes[2]
+	mi := &file_proto_search_search_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +204,7 @@ func (x *SearchReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchReply.ProtoReflect.Descriptor instead.
 func (*SearchReply) Descriptor() ([]byte, []int) {
-	return file_proto_search_search_proto_rawDescGZIP(), []int{2}
+	return file_proto_search_search_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SearchReply) GetComics() []*Comics {
@@ -177,16 +221,19 @@ const file_proto_search_search_proto_rawDesc = "" +
 	"\x19proto/search/search.proto\x12\x06search\x1a\x1bgoogle/protobuf/empty.proto\"=\n" +
 	"\rSearchRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x03R\x05limit\x12\x16\n" +
-	"\x06phrase\x18\x02 \x01(\tR\x06phrase\"*\n" +
+	"\x06phrase\x18\x02 \x01(\tR\x06phrase\"+\n" +
+	"\x13SearchRandomRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x03R\x05limit\"*\n" +
 	"\x06Comics\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"5\n" +
 	"\vSearchReply\x12&\n" +
-	"\x06comics\x18\x01 \x03(\v2\x0e.search.ComicsR\x06comics2\xb7\x01\n" +
+	"\x06comics\x18\x01 \x03(\v2\x0e.search.ComicsR\x06comics2\xfb\x01\n" +
 	"\x06Search\x128\n" +
 	"\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x126\n" +
 	"\x06Search\x12\x15.search.SearchRequest\x1a\x13.search.SearchReply\"\x00\x12;\n" +
-	"\vSearchIndex\x12\x15.search.SearchRequest\x1a\x13.search.SearchReply\"\x00B\x1fZ\x1dyadro.com/course/proto/searchb\x06proto3"
+	"\vSearchIndex\x12\x15.search.SearchRequest\x1a\x13.search.SearchReply\"\x00\x12B\n" +
+	"\fSearchRandom\x12\x1b.search.SearchRandomRequest\x1a\x13.search.SearchReply\"\x00B\x1fZ\x1dyadro.com/course/proto/searchb\x06proto3"
 
 var (
 	file_proto_search_search_proto_rawDescOnce sync.Once
@@ -200,23 +247,26 @@ func file_proto_search_search_proto_rawDescGZIP() []byte {
 	return file_proto_search_search_proto_rawDescData
 }
 
-var file_proto_search_search_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_search_search_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_proto_search_search_proto_goTypes = []any{
-	(*SearchRequest)(nil), // 0: search.SearchRequest
-	(*Comics)(nil),        // 1: search.Comics
-	(*SearchReply)(nil),   // 2: search.SearchReply
-	(*emptypb.Empty)(nil), // 3: google.protobuf.Empty
+	(*SearchRequest)(nil),       // 0: search.SearchRequest
+	(*SearchRandomRequest)(nil), // 1: search.SearchRandomRequest
+	(*Comics)(nil),              // 2: search.Comics
+	(*SearchReply)(nil),         // 3: search.SearchReply
+	(*emptypb.Empty)(nil),       // 4: google.protobuf.Empty
 }
 var file_proto_search_search_proto_depIdxs = []int32{
-	1, // 0: search.SearchReply.comics:type_name -> search.Comics
-	3, // 1: search.Search.Ping:input_type -> google.protobuf.Empty
+	2, // 0: search.SearchReply.comics:type_name -> search.Comics
+	4, // 1: search.Search.Ping:input_type -> google.protobuf.Empty
 	0, // 2: search.Search.Search:input_type -> search.SearchRequest
 	0, // 3: search.Search.SearchIndex:input_type -> search.SearchRequest
-	3, // 4: search.Search.Ping:output_type -> google.protobuf.Empty
-	2, // 5: search.Search.Search:output_type -> search.SearchReply
-	2, // 6: search.Search.SearchIndex:output_type -> search.SearchReply
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	1, // 4: search.Search.SearchRandom:input_type -> search.SearchRandomRequest
+	4, // 5: search.Search.Ping:output_type -> google.protobuf.Empty
+	3, // 6: search.Search.Search:output_type -> search.SearchReply
+	3, // 7: search.Search.SearchIndex:output_type -> search.SearchReply
+	3, // 8: search.Search.SearchRandom:output_type -> search.SearchReply
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -233,7 +283,7 @@ func file_proto_search_search_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_search_search_proto_rawDesc), len(file_proto_search_search_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

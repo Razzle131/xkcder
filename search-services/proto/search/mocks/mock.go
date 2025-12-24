@@ -103,6 +103,26 @@ func (mr *MockSearchClientMockRecorder) SearchIndex(ctx, in any, opts ...any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchIndex", reflect.TypeOf((*MockSearchClient)(nil).SearchIndex), varargs...)
 }
 
+// SearchRandom mocks base method.
+func (m *MockSearchClient) SearchRandom(ctx context.Context, in *search.SearchRandomRequest, opts ...grpc.CallOption) (*search.SearchReply, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SearchRandom", varargs...)
+	ret0, _ := ret[0].(*search.SearchReply)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchRandom indicates an expected call of SearchRandom.
+func (mr *MockSearchClientMockRecorder) SearchRandom(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRandom", reflect.TypeOf((*MockSearchClient)(nil).SearchRandom), varargs...)
+}
+
 // MockSearchServer is a mock of SearchServer interface.
 type MockSearchServer struct {
 	ctrl     *gomock.Controller
@@ -170,6 +190,21 @@ func (m *MockSearchServer) SearchIndex(arg0 context.Context, arg1 *search.Search
 func (mr *MockSearchServerMockRecorder) SearchIndex(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchIndex", reflect.TypeOf((*MockSearchServer)(nil).SearchIndex), arg0, arg1)
+}
+
+// SearchRandom mocks base method.
+func (m *MockSearchServer) SearchRandom(arg0 context.Context, arg1 *search.SearchRandomRequest) (*search.SearchReply, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchRandom", arg0, arg1)
+	ret0, _ := ret[0].(*search.SearchReply)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchRandom indicates an expected call of SearchRandom.
+func (mr *MockSearchServerMockRecorder) SearchRandom(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchRandom", reflect.TypeOf((*MockSearchServer)(nil).SearchRandom), arg0, arg1)
 }
 
 // mustEmbedUnimplementedSearchServer mocks base method.

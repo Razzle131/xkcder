@@ -20,9 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Search_Ping_FullMethodName        = "/search.Search/Ping"
-	Search_Search_FullMethodName      = "/search.Search/Search"
-	Search_SearchIndex_FullMethodName = "/search.Search/SearchIndex"
+	Search_Ping_FullMethodName         = "/search.Search/Ping"
+	Search_Search_FullMethodName       = "/search.Search/Search"
+	Search_SearchIndex_FullMethodName  = "/search.Search/SearchIndex"
+	Search_SearchRandom_FullMethodName = "/search.Search/SearchRandom"
 )
 
 // SearchClient is the client API for Search service.
@@ -32,6 +33,7 @@ type SearchClient interface {
 	Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchReply, error)
 	SearchIndex(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchReply, error)
+	SearchRandom(ctx context.Context, in *SearchRandomRequest, opts ...grpc.CallOption) (*SearchReply, error)
 }
 
 type searchClient struct {
@@ -72,6 +74,16 @@ func (c *searchClient) SearchIndex(ctx context.Context, in *SearchRequest, opts 
 	return out, nil
 }
 
+func (c *searchClient) SearchRandom(ctx context.Context, in *SearchRandomRequest, opts ...grpc.CallOption) (*SearchReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchReply)
+	err := c.cc.Invoke(ctx, Search_SearchRandom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SearchServer is the server API for Search service.
 // All implementations must embed UnimplementedSearchServer
 // for forward compatibility.
@@ -79,6 +91,7 @@ type SearchServer interface {
 	Ping(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	Search(context.Context, *SearchRequest) (*SearchReply, error)
 	SearchIndex(context.Context, *SearchRequest) (*SearchReply, error)
+	SearchRandom(context.Context, *SearchRandomRequest) (*SearchReply, error)
 	mustEmbedUnimplementedSearchServer()
 }
 
@@ -97,6 +110,9 @@ func (UnimplementedSearchServer) Search(context.Context, *SearchRequest) (*Searc
 }
 func (UnimplementedSearchServer) SearchIndex(context.Context, *SearchRequest) (*SearchReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchIndex not implemented")
+}
+func (UnimplementedSearchServer) SearchRandom(context.Context, *SearchRandomRequest) (*SearchReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchRandom not implemented")
 }
 func (UnimplementedSearchServer) mustEmbedUnimplementedSearchServer() {}
 func (UnimplementedSearchServer) testEmbeddedByValue()                {}
@@ -173,6 +189,24 @@ func _Search_SearchIndex_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Search_SearchRandom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRandomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServer).SearchRandom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Search_SearchRandom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServer).SearchRandom(ctx, req.(*SearchRandomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Search_ServiceDesc is the grpc.ServiceDesc for Search service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -191,6 +225,10 @@ var Search_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchIndex",
 			Handler:    _Search_SearchIndex_Handler,
+		},
+		{
+			MethodName: "SearchRandom",
+			Handler:    _Search_SearchRandom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

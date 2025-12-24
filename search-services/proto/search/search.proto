@@ -11,6 +11,11 @@ message SearchRequest {
   string phrase = 2;
 }
 
+message SearchRandomRequest {
+  int64 limit = 1;
+}
+
+
 message Comics {
   int64 id = 1;
   string url = 2;
@@ -26,4 +31,6 @@ service Search {
   rpc Search(SearchRequest) returns (SearchReply) {}
 
   rpc SearchIndex(SearchRequest) returns (SearchReply) {}
+
+  rpc SearchRandom(SearchRandomRequest) returns (SearchReply) {}
 }

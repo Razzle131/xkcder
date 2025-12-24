@@ -84,3 +84,24 @@ func (c Client) SearchIndex(ctx context.Context, phrase string, searchLimit int)
 
 	return res, nil
 }
+
+func (c Client) SearchRandom(ctx context.Context, searchLimit int) ([]core.Comics, error) {
+	req := searchpb.SearchRandomRequest{
+		Limit: int64(searchLimit),
+	}
+
+	resp, err := c.client.SearchRandom(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]core.Comics, 0, len(resp.Comics))
+	for _, c := range resp.Comics {
+		res = append(res, core.Comics{
+			ID:  int(c.Id),
+			URL: c.Url,
+		})
+	}
+
+	return res, nil
+}

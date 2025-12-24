@@ -22,6 +22,7 @@ type Updater interface {
 type Searcher interface {
 	Search(context.Context, string, int) ([]Comics, error)
 	SearchIndex(context.Context, string, int) ([]Comics, error)
+	SearchRandom(context.Context, int) ([]Comics, error)
 }
 
 type AAA interface {
