@@ -27,7 +27,7 @@ func New(logger *slog.Logger, address string) *Client {
 }
 
 func (c *Client) Search(phrase string) (core.SearchResponse, error) {
-	resp, err := http.Get(c.baseUrl + "/api/search?phrase=" + strings.Replace(phrase, " ", "_", -1))
+	resp, err := http.Get(c.baseUrl + "/api/search?phrase=" + strings.ReplaceAll(phrase, " ", "_"))
 	if err != nil {
 		return core.SearchResponse{}, err
 	}
